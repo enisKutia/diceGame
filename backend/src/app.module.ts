@@ -9,6 +9,7 @@ import SetUserToContextMiddleware from './common/middlewares/setUserToContext.mi
 import { LoggerMiddleware } from './common/middlewares/logger.middleware';
 import { DiceController } from './api/dice/dice.controller';
 import { DiceModule } from './api/dice/dice.module';
+import { HistoryModule } from './api/history/history.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { DiceModule } from './api/dice/dice.module';
     RoleModule,
     DiceModule,
     UserModule,
+    HistoryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,3 +1,4 @@
+import { History } from '../../history/entities/history.entity';
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { DiceFace } from './dice-faces.entity';
 
@@ -14,4 +15,7 @@ export class Dice {
 
   @OneToMany((type) => DiceFace, (diceFace) => diceFace.dice)
   diceFaces: DiceFace[];
+
+  @OneToMany((type) => History, (history) => history.dice)
+  history: History[];
 }

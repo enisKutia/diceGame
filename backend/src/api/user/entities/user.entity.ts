@@ -5,12 +5,15 @@ import {
   CreateDateColumn,
   Entity,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { HashService } from '../../../services/hash/HashService';
 import { Exclude } from 'class-transformer';
 import { Role } from '../../role/entities/role.entity';
+import { History } from '../../history/entities/history.entity';
+import { Match } from '../../history/entities/match.entity';
 
 @Entity('users')
 export class User {
@@ -36,7 +39,7 @@ export class User {
   email: string;
 
   @Column('text')
-  @Exclude()
+  @Exclude({ toPlainOnly: true })
   password: string;
 
   @Column({
@@ -65,4 +68,10 @@ export class User {
     onDelete: 'CASCADE',
   })
   role: Role;
+
+  @OneToMany((type) => History, (history) => history.user)
+  history: History[];
+
+  @OneToMany((type) => Match, (match) => match.user)
+  match: Match[];
 }

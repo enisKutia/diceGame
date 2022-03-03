@@ -1,8 +1,9 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ErrorFilter } from './utils/ErrorFilter';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import * as contextService from 'request-context';
+import { ClassSerializerInterceptor } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -14,7 +15,7 @@ async function bootstrap() {
     .setVersion('1.0')
     .addBearerAuth()
     .build();
-
+  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
   const document = SwaggerModule.createDocument(app, options);
 
   SwaggerModule.setup('docs', app, document);
