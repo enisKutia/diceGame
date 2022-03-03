@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsArray,
+  IsBoolean,
   IsNotEmpty,
   IsOptional,
   ValidateNested,
@@ -36,4 +37,16 @@ export class CreateDiceFaceDto {
   @IsOptional()
   @ApiProperty()
   winning: boolean;
+}
+
+export class UpdateDiceDto {
+  @IsOptional()
+  @ApiProperty()
+  shape: string;
+}
+
+export class UpdateDiceFaceDto {
+  @IsOptional()
+  @ApiProperty()
+  color: string;
 }

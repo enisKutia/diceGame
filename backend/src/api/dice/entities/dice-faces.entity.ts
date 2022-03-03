@@ -25,7 +25,7 @@ export class DiceFace {
   value: string;
 
   @Column('text')
-  wining: boolean;
+  winning: boolean;
 
   @ManyToOne((type) => Dice, (dice) => dice.diceFaces, {
     onDelete: 'CASCADE',
@@ -34,6 +34,6 @@ export class DiceFace {
 
   @BeforeInsert()
   async setWinning() {
-    this.wining = this.wining ? this.wining : false;
+    this.winning = this.winning ? this.winning : false;
   }
 }

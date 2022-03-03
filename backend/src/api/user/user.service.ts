@@ -31,7 +31,6 @@ export class UserService {
     return await this.getRequestedUserOrFail(id);
   }
 
-  //TODO: Email update and also validation
   async update(id: string, updateUserDto: UpdateUserDto) {
     await this.getRequestedUserOrFail(id);
     if (updateUserDto.email) {

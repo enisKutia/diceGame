@@ -4,7 +4,12 @@ import { Repository } from 'typeorm';
 import { RoleService } from '../role/role.service';
 import { User } from '../user/entities/user.entity';
 import { UserService } from '../user/user.service';
-import { CreateDiceDto } from './dto/dice.dto';
+import {
+  CreateDiceDto,
+  CreateDiceFaceDto,
+  UpdateDiceDto,
+  UpdateDiceFaceDto,
+} from './dto/dice.dto';
 // import { UpdateDieDto } from './dto/update-die.dto';
 import { DiceFace } from './entities/dice-faces.entity';
 import { Dice } from './entities/dice.entity';
@@ -23,10 +28,6 @@ export class DiceService {
   async create(user: User, createDiceDto: CreateDiceDto) {
     const userRole = await this.roleService.findOne(user.roleId);
 
-    if (userRole.slug !== 'moderator') {
-      throw new HttpException('You cannot create dice', 422);
-    }
-
     if (createDiceDto.diceFaces.length !== createDiceDto.faces) {
       throw new HttpException(
         'Number of faces specified should be the same as specified',
@@ -34,7 +35,44 @@ export class DiceService {
       );
     }
 
-    return 'This action adds a new die';
+    const allNumbers = createDiceDto.diceFaces.every((element: any) =>
+      element.value.match(/^[0-9]+$/),
+    );
+
+    if (!allNumbers) {
+      let countWinnning = 0;
+      createDiceDto.diceFaces.forEach((element: any) => {
+        if (element.winning == true) {
+          countWinnning++;
+        }
+      });
+
+      if (countWinnning !== 1) {
+        throw new HttpException('There should be 1 winning face', 422);
+      }
+    }
+
+    if (userRole.slug !== 'moderator') {
+      return createDiceDto;
+    }
+    let dice = this.diceRepository.create({
+      faces: createDiceDto.faces,
+      shape: createDiceDto.shape,
+    });
+
+    dice = await this.diceRepository.save(dice);
+
+    const diceFacesToInsert = createDiceDto.diceFaces.map((el) => {
+      return {
+        ...el,
+        diceId: dice.id,
+      };
+    });
+
+    let diceFaces = this.diceFaceRepository.create(diceFacesToInsert);
+    await this.diceFaceRepository.save(diceFaces);
+
+    return await this.findOne(dice.id);
   }
 
   async findAll() {
@@ -54,9 +92,43 @@ export class DiceService {
     if (!dice) {
       throw new HttpException('This dice does not exists!', 422);
     }
+
+    return dice;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} die`;
+  async update(id: string, updateDiceDto: UpdateDiceDto) {
+    await this.findOne(id);
+    await this.diceRepository.update(id, updateDiceDto);
+
+    return await this.findOne(id);
+  }
+
+  async updateDiceFace(id: string, updateDiceFaceDto: UpdateDiceFaceDto) {
+    const diceFace = await this.findDiceFace(id);
+
+    if (updateDiceFaceDto.color) {
+      await this.diceFaceRepository.update(id, {
+        color: updateDiceFaceDto.color,
+      });
+    }
+
+    return await this.findDiceFace(id);
+  }
+
+  async findDiceFace(id: string) {
+    const diceFace = await this.diceFaceRepository.findOne(id);
+
+    if (!diceFace) {
+      throw new HttpException('This dice face does not exists!', 422);
+    }
+
+    return diceFace;
+  }
+
+  async remove(id: string) {
+    const dice = await this.findOne(id);
+    await this.diceRepository.remove(dice);
+
+    return dice;
   }
 }
