@@ -66,9 +66,10 @@ export class HistoryService {
     let history = this.historyRepository.create(insertingObj);
 
     history == (await this.historyRepository.save(history));
-    console.log({ history });
 
-    return await this.findOne(history.id);
+    const returningResult = await this.findOne(history.id);
+
+    return { ...returningResult, gameRes: result };
   }
 
   async findAll(query) {
